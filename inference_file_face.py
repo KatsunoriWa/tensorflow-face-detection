@@ -9,6 +9,7 @@ import glob
 import numpy as np
 import tensorflow as tf
 import cv2
+import PIL.Image
 
 from utils import label_map_util
 from utils import visualization_utils_color as vis_util
@@ -119,7 +120,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
         d = readheadPose.getTruePosition()
 
 
-    deg = 0
     log = open("log_%s_%d.csv" % (dataset, deg), "wt")
     log.write("name,num\n")
 
@@ -128,6 +128,14 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
     for p in names:
         image = cv2.imread(p)
+
+        if deg != 0:
+            image = rotate(image, deg)
+
+        cols = image.shape[1]
+        rows = image.shape[0]
+        imgCenter = [cols/2, rows/2]
+
         image2 = image+0
 
         [h, w] = image.shape[:2]
@@ -204,7 +212,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
 
     log.close()
-    
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 2:
