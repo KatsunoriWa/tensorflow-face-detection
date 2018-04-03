@@ -164,7 +164,6 @@ example:
         imgCenter = [w/2, h/2]
 
         (boxes, scores, classes, num_detections) = tDetector.run(image)
-        print boxes
 
         vis_util.visualize_boxes_and_labels_on_image_array(
             image,
@@ -187,12 +186,11 @@ example:
 
         boxes_shape = boxes.shape
         for i in range(boxes_shape[0]):
-            
+
             if scores[i] <= min_score_thresh:
                 continue
-            
+
             print i
-            print boxes[i]
             if dataset in  ("lwf",) :
                 isPositive = True
 #                isPositive = centerIsInRect(image.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
