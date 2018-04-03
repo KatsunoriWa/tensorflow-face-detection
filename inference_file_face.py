@@ -4,6 +4,7 @@
 # pylint: disable=E1101
 
 import sys
+import os
 import time
 import glob
 import numpy as np
@@ -127,6 +128,12 @@ def processDatabase(dataset, names, deg=0, showImg=True):
     windowNotSet = True
 
     for p in names:
+        dstDir = "result"
+        dstname = os.path.join(dstDir, p)
+        dirname = os.path.dirname(dstname)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
+
         image = cv2.imread(p)
 
         if deg != 0:
@@ -163,7 +170,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         trueDetection = {True:0, False:0}
 
-        min_score_thresh=.7
+        min_score_thresh = 0.7
 
         boxes_shape = boxes.shape
         for i in range(boxes_shape[0]):
@@ -172,7 +179,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 continue
 
             print i
-            if dataset in  ("lwf",) :
+            if dataset in ("lwf", ):
                 isPositive = True
 #                isPositive = centerIsInRect(image.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
             elif dataset == "headPose":
@@ -180,7 +187,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 center = (v[0], v[1])
     #                    print p, center
                 center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-                ymin, xmin, ymax, xmax =  boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
+                ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
                 print type(ymin), "type(ymin)"
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * im_height, xmin * im_width, ymax * im_height, xmax * im_width
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
