@@ -107,34 +107,7 @@ class TensoflowFaceDector(object):
 
         return (boxes, scores, classes, num_detections)
 
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) != 2:
-        print """usage:%s (cameraID | filename)
-Detect faces in the video
-example:
-%s 0
-""" % (sys.argv[0], sys.argv[0])
-        exit(1)
-
-    dataset = "headPose"
-#    dataset = "lfw"
-#    dataset = "cnn"
-#    dataset = "att"
-
-    if dataset == "headPose":
-        names = glob.glob("headPose/Person*/*.jpg")
-    elif dataset == "lfw":
-        names = glob.glob("lfw/lfw/*/*.jpg")
-    elif dataset == "cnn":
-        names = glob.glob("cnn*/*/*.jpg")
-    elif dataset == "att":
-        names = glob.glob("att*/*/*.pgm")
-
-
-    names.sort()
-
+def processDatabase(dataset, names, deg=0, showImg=True):
 #    processDatabase(dataset, names)
 
 
@@ -231,3 +204,32 @@ example:
 
 
     log.close()
+    
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 2:
+        print """usage:%s (cameraID | filename)
+Detect faces in the video
+example:
+%s 0
+""" % (sys.argv[0], sys.argv[0])
+        exit(1)
+
+    dataset = "headPose"
+#    dataset = "lfw"
+#    dataset = "cnn"
+#    dataset = "att"
+
+    if dataset == "headPose":
+        names = glob.glob("headPose/Person*/*.jpg")
+    elif dataset == "lfw":
+        names = glob.glob("lfw/lfw/*/*.jpg")
+    elif dataset == "cnn":
+        names = glob.glob("cnn*/*/*.jpg")
+    elif dataset == "att":
+        names = glob.glob("att*/*/*.pgm")
+
+
+    names.sort()
+
+    processDatabase(dataset, names)
