@@ -110,20 +110,24 @@ class TensoflowFaceDector(object):
         return (boxes, scores, classes, num_detections)
 
 def processDatabase(dataset, names, deg=0, showImg=True):
-#    processDatabase(dataset, names)
-
-
-    tDetector = TensoflowFaceDector()
-    category_index = getGategoryIndex()
-
+    """run face detection for named dataset as names.
+    dataset:
+    names:
+    deg: angle (anti-clockwise)
+    """
     if dataset == "headPose":
         import readheadPose
         d = readheadPose.getTruePosition()
 
 
     log = open("log_%s_%d.csv" % (dataset, deg), "wt")
-    log.write("name,num\n")
+    log.write("name,num,truePositives,falsePositives\n")
 
+#    processDatabase(dataset, names)
+
+
+    tDetector = TensoflowFaceDector()
+    category_index = getGategoryIndex()
 
     windowNotSet = True
 
@@ -205,7 +209,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         found = len(boxes)
 
-        log.write("%s, %d\n" % (p, found))
+	log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
 
 
         if windowNotSet is True:
@@ -219,6 +223,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
 
     log.close()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     import sys
