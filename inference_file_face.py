@@ -9,7 +9,7 @@ import time
 import glob
 import numpy as np
 import tensorflow as tf
-import cv2
+import cv2 as cv
 import PIL.Image
 
 from utils import label_map_util
@@ -80,22 +80,22 @@ class TensoflowFaceDector(object):
                 self.windowNotSet = True
 
 
-    def run(self, image):
-        """image: bgr image
+    def run(self, frame):
+        """frame: bgr frame
         return (boxes, scores, classes, num_detections)
         """
 
-        image_np = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image_np = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
-        # the array based representation of the image will be used later in order to prepare the
-        # result image with boxes and labels on it.
+        # the array based representation of the frame will be used later in order to prepare the
+        # result frame with boxes and labels on it.
         # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image_np, axis=0)
         image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
-        # Each box represents a part of the image where a particular object was detected.
+        # Each box represents a part of the frame where a particular object was detected.
         boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
         # Each score represent how level of confidence for each of the objects.
-        # Score is shown on the result image, together with the class label.
+        # Score is shown on the result frame, together with the class label.
         scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
         classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
         num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
@@ -138,27 +138,26 @@ def processDatabase(dataset, names, deg=0, showImg=True):
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
 
-        image = cv2.imread(p)
-
+        frame = cv.imread(p)
         if deg != 0:
-            image = rotate(image, deg)
+            frame = rotate(frame, deg)
 
-        cols = image.shape[1]
-        rows = image.shape[0]
+        cols = frame.shape[1]
+        rows = frame.shape[0]
         imgCenter = [cols/2, rows/2]
 
-        image2 = image+0
+        image2 = frame+0
 
-        [h, w] = image.shape[:2]
+        [h, w] = frame.shape[:2]
         print h, w
         im_height, im_width = h, w
 
         imgCenter = [w/2, h/2]
 
-        (boxes, scores, classes, num_detections) = tDetector.run(image)
+        (boxes, scores, classes, num_detections) = tDetector.run(frame)
 
         vis_util.visualize_boxes_and_labels_on_image_array(
-            image,
+            frame,
             np.squeeze(boxes),
             np.squeeze(classes).astype(np.int32),
             np.squeeze(scores),
@@ -185,7 +184,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             print i
             if dataset in ("lwf", ):
                 isPositive = True
-#                isPositive = centerIsInRect(image.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
+#                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
             elif dataset == "headPose":
                 v = d[p]
                 center = (v[0], v[1])
@@ -197,11 +196,11 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
                 print yLeftTop, "yleftTop"
                 isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-                cv2.rectangle(image2, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
-                cv2.circle(image, center, 50, (0, 255, 0))
+                cv.rectangle(image2, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
+                cv.circle(frame, center, 50, (0, 255, 0))
             else:
                 assert 1 == 0
-                isPositive = centerIsInRect(image.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
+                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
 
             trueDetection[isPositive] += 1
@@ -213,17 +212,17 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
 
         if windowNotSet is True:
-            cv2.namedWindow("tensorflow based (%d, %d)" % (w, h), cv2.WINDOW_NORMAL)
+            cv.namedWindow("tensorflow based (%d, %d)" % (w, h), cv.WINDOW_NORMAL)
             windowNotSet = False
 
-        cv2.imshow("tensorflow based (%d, %d)" % (w, h), image2)
-        k = cv2.waitKey(1) & 0xff
+        cv.imshow("tensorflow based (%d, %d)" % (w, h), image2)
+        k = cv.waitKey(1) & 0xff
         if k == ord('q') or k == 27:
             break
 
 
     log.close()
-    cv2.destroyAllWindows()
+    cv.destroyAllWindows()
 
 if __name__ == "__main__":
     import sys
