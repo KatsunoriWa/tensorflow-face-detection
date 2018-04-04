@@ -5,13 +5,13 @@
 
 import sys
 import os
-import time
 import glob
 import numpy as np
-import tensorflow as tf
 import cv2 as cv
 import PIL.Image
+import time
 
+import tensorflow as tf
 from utils import label_map_util
 from utils import visualization_utils_color as vis_util
 
@@ -123,9 +123,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
     log = open("log_%s_%d.csv" % (dataset, deg), "wt")
     log.write("name,num,truePositives,falsePositives\n")
 
-#    processDatabase(dataset, names)
-
-
     tDetector = TensoflowFaceDector()
     category_index = getGategoryIndex()
 
@@ -144,15 +141,11 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         cols = frame.shape[1]
         rows = frame.shape[0]
+        [h, w] = frame.shape[:2]
         imgCenter = [cols/2, rows/2]
 
         image2 = frame+0
 
-        [h, w] = frame.shape[:2]
-        print h, w
-        im_height, im_width = h, w
-
-        imgCenter = [w/2, h/2]
 
         (boxes, scores, classes, num_detections) = tDetector.run(frame)
 
@@ -192,7 +185,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 center = readheadPose.getRotatedPoint(center, deg, imgCenter)
                 ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
                 print type(ymin), "type(ymin)"
-                yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * im_height, xmin * im_width, ymax * im_height, xmax * im_width
+                yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * h, xmin * w, ymax * h, xmax * w
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
                 print yLeftTop, "yleftTop"
                 isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
@@ -203,7 +196,8 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
 
-            trueDetection[isPositive] += 1
+                cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
+                cv.circle(frame, (xRightBottom, yRightBottom), 5, (0, 255, 0))
 
 
         found = len(boxes)
@@ -215,24 +209,23 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             cv.namedWindow("tensorflow based (%d, %d)" % (w, h), cv.WINDOW_NORMAL)
             windowNotSet = False
 
-        cv.imshow("tensorflow based (%d, %d)" % (w, h), image2)
-        k = cv.waitKey(1) & 0xff
-        if k == ord('q') or k == 27:
-            break
+        if showImg:
+            cv.imshow("tensorflow based (%d, %d)" % (w, h), image2)
+            k = cv.waitKey(1) & 0xff
+            if k == ord('q') or k == 27:
+                break
 
 
     log.close()
     cv.destroyAllWindows()
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) != 2:
-        print """usage:%s (cameraID | filename)
-Detect faces in the video
-example:
-%s 0
-""" % (sys.argv[0], sys.argv[0])
-        exit(1)
+if __name__ == '__main__':
+    if len(sys.argv) == 0:
+        print """usage: %s (headPose | lfw | cnn)
+        """ % sys.argv[0]
+        exit()
+
+
 
     dataset = "headPose"
 #    dataset = "lfw"
