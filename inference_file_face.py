@@ -197,6 +197,14 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
                 cv.circle(frame, (xRightBottom, yRightBottom), 5, (0, 255, 0))
 
+            trueDetection[isPositive] += 1
+            
+            cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
+            cv.circle(frame, (xRightBottom, yRightBottom), 5, (0, 255, 0))
+
+            color = {True:(0, 255, 0), False:(0, 0, 128)}[isPositive]
+            cv.rectangle(frame, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom),
+                         color)
 
         found = len(boxes)
 

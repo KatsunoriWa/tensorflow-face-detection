@@ -70,7 +70,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         detections, perf_stats = detector.run(frame)
 
-#        print('Inference time, ms: %.2f' % (perf_stats[0] / cv.getTickFrequency() * 1000))
 
 
         found = 0
@@ -126,7 +125,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 assert found == trueDetection[True] + trueDetection[False]
 
         assert found == trueDetection[True] + trueDetection[False]
-#        print p, found, trueDetection
         log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
 
         if showImg:
