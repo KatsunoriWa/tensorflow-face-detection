@@ -105,7 +105,7 @@ class TensoflowFaceDector(object):
             [boxes, scores, classes, num_detections],
             feed_dict={image_tensor: image_np_expanded})
         elapsed_time = time.time() - start_time
-        print('inference time cost: {}'.format(elapsed_time))
+#        print('inference time cost: {}'.format(elapsed_time))
 
         return (boxes, scores, classes, num_detections)
 
@@ -174,7 +174,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             if scores[i] <= min_score_thresh:
                 continue
 
-            print i
+#            print i
             if dataset in ("lwf", ):
                 isPositive = True
 #                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
@@ -184,10 +184,8 @@ def processDatabase(dataset, names, deg=0, showImg=True):
     #                    print p, center
                 center = readheadPose.getRotatedPoint(center, deg, imgCenter)
                 ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
-                print type(ymin), "type(ymin)"
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * h, xmin * w, ymax * h, xmax * w
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
-                print yLeftTop, "yleftTop"
                 isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
                 cv.rectangle(image2, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
                 cv.circle(frame, center, 50, (0, 255, 0))
