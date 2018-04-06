@@ -105,6 +105,11 @@ class TensoflowFaceDector(object):
             [boxes, scores, classes, num_detections],
             feed_dict={image_tensor: image_np_expanded})
         elapsed_time = time.time() - start_time
+
+        boxes = np.squeeze(boxes)
+        scores = np.squeeze(scores)
+        classes = np.squeeze(classes)
+
 #        print('inference time cost: {}'.format(elapsed_time))
 
         return (boxes, scores, classes, num_detections)
@@ -151,9 +156,9 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         vis_util.visualize_boxes_and_labels_on_image_array(
             frame,
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
+            boxes,
+            classes.astype(np.int32),
+            scores,
             category_index,
             use_normalized_coordinates=True,
             line_thickness=4)
@@ -161,8 +166,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         found = 0
 
-        boxes = np.squeeze(boxes)
-        scores = np.squeeze(scores)
 
         trueDetection = {True:0, False:0}
 
