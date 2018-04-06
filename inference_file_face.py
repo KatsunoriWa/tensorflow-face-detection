@@ -149,9 +149,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
         [h, w] = frame.shape[:2]
         imgCenter = [cols/2, rows/2]
 
-        image2 = frame+0
-
-
         (boxes, scores, classes, num_detections) = tDetector.run(frame)
 
         vis_util.visualize_boxes_and_labels_on_image_array(
@@ -177,10 +174,8 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             if scores[i] <= min_score_thresh:
                 continue
 
-#            print i
             if dataset in ("lwf", ):
-                isPositive = True
-#                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
+                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
             elif dataset == "headPose":
                 v = d[p]
                 center = (v[0], v[1])
@@ -190,7 +185,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * h, xmin * w, ymax * h, xmax * w
                 yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
                 isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-                cv.rectangle(image2, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
+                cv.rectangle(frame, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
                 cv.circle(frame, center, 50, (0, 255, 0))
             else:
                 assert 1 == 0
@@ -211,7 +206,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         found = len(boxes)
 
-	log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
+        log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
 
 
         if windowNotSet is True:
@@ -219,7 +214,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             windowNotSet = False
 
         if showImg:
-            cv.imshow("tensorflow based (%d, %d)" % (w, h), image2)
+            cv.imshow("tensorflow based (%d, %d)" % (w, h), frame)
             k = cv.waitKey(1) & 0xff
             if k == ord('q') or k == 27:
                 break
