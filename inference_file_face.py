@@ -178,18 +178,16 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 continue
 
             if dataset in ("lfw", ):
-                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
+                center = imgCenter
             elif dataset == "headPose":
                 v = d[p]
                 center = (v[0], v[1])
-    #                    print p, center
                 center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-                isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
                 cv.circle(frame, center, 50, (0, 255, 0))
             else:
-                assert 1 == 0
-                isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
+                center = imgCenter
 
+            isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
             trueDetection[isPositive] += 1
             
