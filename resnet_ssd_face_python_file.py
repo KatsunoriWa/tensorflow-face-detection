@@ -64,13 +64,10 @@ def processDatabase(dataset, names, deg=0, confThreshold=0.5, showImg=True):
 
         cols = frame.shape[1]
         rows = frame.shape[0]
+        [h, w] = frame.shape[:2]
         imgCenter = [cols/2, rows/2]
 
         detections, perf_stats = detector.run(frame)
-
-
-
-        found = 0
 
         trueDetection = {True:0, False:0}
 
@@ -102,22 +99,18 @@ def processDatabase(dataset, names, deg=0, confThreshold=0.5, showImg=True):
                 cv.rectangle(frame, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom),
                              color)
 
-
                 label = "face: %.4f" % confidence
                 labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-
 
                 cv.rectangle(frame, (xLeftTop, yLeftTop - labelSize[1]),
                                     (xLeftTop + labelSize[0], yLeftTop + baseLine),
                                     (255, 255, 255), cv.FILLED)
                 cv.putText(frame, label, (xLeftTop, yLeftTop),
                            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-                cv.imwrite(dstname, frame)
-                found += 1
 
-
-        found == trueDetection[True] + trueDetection[False]
+        found = trueDetection[True] + trueDetection[False]
         log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
+        cv.imwrite(dstname, frame)
 
         if showImg:
             cv.imshow("resnet based (%d, %d)" % (w, h), frame)
