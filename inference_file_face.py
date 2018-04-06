@@ -168,6 +168,17 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         min_score_thresh = 0.7
 
+        if dataset in ("lfw", ):
+            center = imgCenter
+        elif dataset == "headPose":
+            v = d[p]
+            center = (v[0], v[1])
+            center = readheadPose.getRotatedPoint(center, deg, imgCenter)
+            cv.circle(frame, center, 50, (0, 255, 0))
+        else:
+            center = imgCenter
+
+
         boxes_shape = boxes.shape
         for i in range(boxes_shape[0]):
             ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
@@ -176,16 +187,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
             if scores[i] <= min_score_thresh:
                 continue
-
-            if dataset in ("lfw", ):
-                center = imgCenter
-            elif dataset == "headPose":
-                v = d[p]
-                center = (v[0], v[1])
-                center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-                cv.circle(frame, center, 50, (0, 255, 0))
-            else:
-                center = imgCenter
 
             isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
