@@ -35,7 +35,7 @@ def centerIsInRect(shape, leftTop, rightBottom):
     center = (shape[1]/2, shape[0]/2)
     return isInside(center, leftTop, rightBottom)
 
-def processDatabase(dataset, names, deg=0, showImg=True):
+def processDatabase(dataset, names, deg=0, confThreshold=0.5, showImg=True):
     """run face detection for named dataset as names.
     dataset:
     names:
@@ -50,8 +50,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
     log.write("name,num,truePositives,falsePositives\n")
 
     detector = resnet_ssd_face.ResnetFaceDetector()
-
-    confThreshold = 0.5
 
     for p in names:
         dstDir = "result"
@@ -76,6 +74,16 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         trueDetection = {True:0, False:0}
 
+        if dataset in ("lfw", ):
+            center = imgCenter
+        elif dataset == "headPose":
+            v = d[p]
+            center = (v[0], v[1])
+            center = readheadPose.getRotatedPoint(center, deg, imgCenter)
+            cv.circle(frame, center, 50, (0, 255, 0))
+        else:
+            center = imgCenter
+
         for i in range(detections.shape[2]):
             confidence = detections[0, 0, i, 2]
             if confidence > confThreshold:
@@ -84,22 +92,7 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 xRightBottom = int(detections[0, 0, i, 5] * cols)
                 yRightBottom = int(detections[0, 0, i, 6] * rows)
 
-#                print dataset
-                if dataset == "headPose":
-                    v = d[p]
-                    center = (v[0], v[1])
-#                    print p, center
-                    center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-
-                    isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-                    cv.circle(frame, center, 50, (0, 255, 0))
-                elif dataset == "lwf":
-                    isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-                else:
-                    assert 1 == 0
-                    isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-
-
+                isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
                 trueDetection[isPositive] += 1
 
                 cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
@@ -122,13 +115,12 @@ def processDatabase(dataset, names, deg=0, showImg=True):
                 cv.imwrite(dstname, frame)
                 found += 1
 
-                assert found == trueDetection[True] + trueDetection[False]
 
-        assert found == trueDetection[True] + trueDetection[False]
+        found == trueDetection[True] + trueDetection[False]
         log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
 
         if showImg:
-            cv.imshow("detections", frame)
+            cv.imshow("resnet based (%d, %d)" % (w, h), frame)
             k = cv.waitKey(1) & 0xff
             if k == ord('q') or k == 27:
                 break
