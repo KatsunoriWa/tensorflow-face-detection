@@ -114,7 +114,7 @@ class TensoflowFaceDector(object):
 
         return (boxes, scores, classes, num_detections)
 
-def processDatabase(dataset, names, deg=0, showImg=True):
+def processDatabase(dataset, names, deg=0, min_score_thresh=0.7, showImg=True):
     """run face detection for named dataset as names.
     dataset:
     names:
@@ -151,22 +151,18 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         (boxes, scores, classes, num_detections) = tDetector.run(frame)
 
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            frame,
-            boxes,
-            classes.astype(np.int32),
-            scores,
-            category_index,
-            use_normalized_coordinates=True,
-            line_thickness=4)
 
-
-        found = 0
+#        vis_util.visualize_boxes_and_labels_on_image_array(
+#            frame,
+#            boxes,
+#            classes.astype(np.int32),
+#            scores,
+#            category_index,
+#            use_normalized_coordinates=True,
+#            line_thickness=4)
 
 
         trueDetection = {True:0, False:0}
-
-        min_score_thresh = 0.7
 
         if dataset in ("lfw", ):
             center = imgCenter
@@ -191,18 +187,16 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
             trueDetection[isPositive] += 1
-            
+
             cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
             cv.circle(frame, (xRightBottom, yRightBottom), 5, (0, 255, 0))
 
-            color = {True:(0, 255, 0), False:(0, 0, 128)}[isPositive]
+            color = {True:(0, 255, 0), False:(0, 0, 255)}[isPositive]
             cv.rectangle(frame, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom),
-                         color)
+                         color, 5)
 
-        found = len(boxes)
-
+        found = trueDetection[True] + trueDetection[False]
         log.write("%s, %d, %d, %d\n" % (p, found, trueDetection[True], trueDetection[False]))
-
 
         if windowNotSet is True:
             cv.namedWindow("tensorflow based (%d, %d)" % (w, h), cv.WINDOW_NORMAL)
@@ -213,7 +207,6 @@ def processDatabase(dataset, names, deg=0, showImg=True):
             k = cv.waitKey(1) & 0xff
             if k == ord('q') or k == 27:
                 break
-
 
     log.close()
     cv.destroyAllWindows()
@@ -227,7 +220,7 @@ if __name__ == '__main__':
 
 
     dataset = "headPose"
-    dataset = "lfw"
+#    dataset = "lfw"
 #    dataset = "cnn"
 #    dataset = "att"
 
@@ -242,5 +235,4 @@ if __name__ == '__main__':
 
 
     names.sort()
-
-    processDatabase(dataset, names)
+    processDatabase(dataset, names, 20)
