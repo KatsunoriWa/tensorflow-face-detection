@@ -170,30 +170,26 @@ def processDatabase(dataset, names, deg=0, showImg=True):
 
         boxes_shape = boxes.shape
         for i in range(boxes_shape[0]):
+            ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
+            yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * h, xmin * w, ymax * h, xmax * w
+            yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
 
             if scores[i] <= min_score_thresh:
                 continue
 
-            if dataset in ("lwf", ):
+            if dataset in ("lfw", ):
                 isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
             elif dataset == "headPose":
                 v = d[p]
                 center = (v[0], v[1])
     #                    print p, center
                 center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-                ymin, xmin, ymax, xmax = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
-                yLeftTop, xLeftTop, yRightBottom, xRightBottom = ymin * h, xmin * w, ymax * h, xmax * w
-                yLeftTop, xLeftTop, yRightBottom, xRightBottom = int(yLeftTop), int(xLeftTop), int(yRightBottom), int(xRightBottom)
                 isPositive = isInside(center, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
-                cv.rectangle(frame, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom), (255, 0, 255), 5)
                 cv.circle(frame, center, 50, (0, 255, 0))
             else:
                 assert 1 == 0
                 isPositive = centerIsInRect(frame.shape, (xLeftTop, yLeftTop), (xRightBottom, yRightBottom))
 
-
-                cv.circle(frame, (xLeftTop, yLeftTop), 5, (0, 255, 0))
-                cv.circle(frame, (xRightBottom, yRightBottom), 5, (0, 255, 0))
 
             trueDetection[isPositive] += 1
             
@@ -232,7 +228,7 @@ if __name__ == '__main__':
 
 
     dataset = "headPose"
-#    dataset = "lfw"
+    dataset = "lfw"
 #    dataset = "cnn"
 #    dataset = "att"
 
