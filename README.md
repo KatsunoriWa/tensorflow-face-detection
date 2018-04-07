@@ -76,3 +76,53 @@ Usage of the code and model by yeephycho is under the license of Apache 2.0.
 The code is based on GOOGLE tensorflow object detection api. Please refer to the license of tensorflow.
 
 Dataset is based on WIDERFACE dataset. Please refer to the license to the WIDERFACE license.
+
+---
+
+# Evaluation for detection
+
+Evaluation script for tensorflow face detection
+
+## Requirements
+OpenCV 3
+Python 2.7
+pandas
+numpy
+matplotlib
+pandas
+jupyter notebook
+
+## Purpose
+Evaluate tensorflow face detection using some open database.
+
+## Scripts
+Python scripts are modidied from orginal tensorflow face detection to use class.
+
+### inference_file_face.py
+a class version to use tensorflow face detection
+
+Evaluation scripts are written as jupyter notebook file (*.ipynb)
+
+```
+$ jupyter notebook
+```
+
+### evalate detection ratio
+- log_lfw.ipynb
+- log_headPose.ipynb
+- log_cnn.ipynb
+
+
+### evalate detection ratio with roll
+
+- log_headPose_rotate.ipynb
+- log_lfw_rotate.ipynb
+
+### Results
+
+You can see some results in the jupyter notebook file.
+Some plots show that resnet_ssd_face_python in OpenCV has high detection ratio.
+
+
+## note:
+Some comments are written in Japanese.
