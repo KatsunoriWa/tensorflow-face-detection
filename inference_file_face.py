@@ -41,6 +41,22 @@ def centerIsInRect(shape, leftTop, rightBottom):
     center = (shape[1]/2, shape[0]/2)
     return isInside(center, leftTop, rightBottom)
 
+def scaledImage(img, scale, keepFullSize=True):
+    """
+    return resized image
+    """
+
+    [h, w] = img.shape[:2]
+    scaledSize = (int(round(w*scale)), int(round(h*scale)))
+
+    scaledImg = cv.resize(img, scaledSize)
+
+    if not keepFullSize:
+        return scaledImg
+    else:
+        newImg = np.zeros((img.shape), dtype=np.uint8)
+        newImg[0:scaledSize[1], 0:scaledSize[0], :] = scaledImg
+        return newImg
 
 
 def getGategoryIndex():
@@ -114,7 +130,7 @@ class TensoflowFaceDector(object):
 
         return (boxes, scores, classes, num_detections)
 
-def processDatabase(dataset, names, deg=0, min_score_thresh=0.7, showImg=True):
+def processDatabase(dataset, names, deg=0, scale=1.0, min_score_thresh=0.7, showImg=True):
     """run face detection for named dataset as names.
     dataset:
     names:
@@ -144,6 +160,11 @@ def processDatabase(dataset, names, deg=0, min_score_thresh=0.7, showImg=True):
         if deg != 0:
             frame = rotate(frame, deg)
 
+        [h, w] = frame.shape[:2]
+        scaledImg = scaledImage(frame, scale)
+        frame = scaledImg
+
+
         cols = frame.shape[1]
         rows = frame.shape[0]
         [h, w] = frame.shape[:2]
@@ -170,7 +191,12 @@ def processDatabase(dataset, names, deg=0, min_score_thresh=0.7, showImg=True):
             v = d[p]
             center = (v[0], v[1])
             center = readheadPose.getRotatedPoint(center, deg, imgCenter)
-            cv.circle(frame, center, 50, (0, 255, 0))
+            #　ここで縮小したことによる画像の点の扱いを修正すること
+            center = (int(scale*center[0]), int(scale*center[1]))
+
+            r = int(50*scale)
+
+            cv.circle(frame, center, r, (0, 255, 0))
         else:
             center = imgCenter
 
@@ -235,4 +261,4 @@ if __name__ == '__main__':
 
 
     names.sort()
-    processDatabase(dataset, names, 20)
+    processDatabase(dataset, names, 20, scale=0.5)
